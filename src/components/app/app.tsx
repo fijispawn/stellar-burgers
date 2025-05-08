@@ -1,4 +1,5 @@
 import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import {
   ConstructorPage,
   Feed,
@@ -16,11 +17,32 @@ import { ProtectedRoute } from '../protected-route';
 import '../../index.css';
 import styles from './app.module.css';
 import { AppHeader } from '@components';
+import { useDispatch, useSelector } from '../../services/store';
+import {
+  checkAuth,
+  selectAuthError,
+  selectIsAuthenticated
+} from '../../services/slices/authSlice';
 
 const App = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const background = location.state?.background;
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const authError = useSelector(selectAuthError);
+
+  useEffect(() => {
+    console.log('Checking auth...');
+    dispatch(checkAuth())
+      .unwrap()
+      .then(() => {
+        console.log('Auth check successful');
+      })
+      .catch((error) => {
+        console.error('Auth check failed:', error);
+      });
+  }, [dispatch]);
 
   const handleModalClose = () => {
     navigate(-1);

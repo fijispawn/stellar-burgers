@@ -208,7 +208,9 @@ type TUserResponse = TServerResponse<{ user: TUser }>;
 
 export const getUserApi = () =>
   fetchWithRefresh<TUserResponse>(`${URL}/auth/user`, {
+    method: 'GET',
     headers: {
+      'Content-Type': 'application/json;charset=utf-8',
       authorization: getCookie('accessToken')
     } as HeadersInit
   });

@@ -4,9 +4,10 @@ import {
   loginUserApi,
   registerUserApi,
   logoutUserApi,
-  updateUserApi
+  updateUserApi,
+  getUserApi
 } from '@api';
-import { setCookie, deleteCookie } from '../../utils/cookie';
+import { setCookie, deleteCookie, getCookie } from '../../utils/cookie';
 
 interface User {
   name: string;
@@ -58,6 +59,25 @@ export const updateUser = createAsyncThunk(
   async (data: { name: string; email: string; password?: string }) => {
     const response = await updateUserApi(data);
     return response.user;
+  }
+);
+
+export const checkAuth = createAsyncThunk(
+  'auth/checkAuth',
+  async (_, { rejectWithValue }) => {
+    try {
+      const accessToken = getCookie('accessToken');
+      if (!accessToken) {
+        return rejectWithValue('No access token');
+      }
+      const response = await getUserApi();
+      if (response.success) {
+        return response.user;
+      }
+      return rejectWithValue('Failed to get user data');
+    } catch (error) {
+      return rejectWithValue((error as Error).message);
+    }
   }
 );
 
@@ -116,6 +136,21 @@ const authSlice = createSlice({
       .addCase(updateUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to update user';
+      })
+      // Check Auth
+      .addCase(checkAuth.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(checkAuth.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+        state.isAuthenticated = true;
+      })
+      .addCase(checkAuth.rejected, (state) => {
+        state.loading = false;
+        state.user = null;
+        state.isAuthenticated = false;
       });
   }
 });
