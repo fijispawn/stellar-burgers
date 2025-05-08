@@ -233,3 +233,14 @@ export const logoutApi = () =>
       token: localStorage.getItem('refreshToken')
     })
   }).then((res) => checkResponse<TServerResponse<{}>>(res));
+
+export const logoutUserApi = () =>
+  fetch(`${URL}/auth/logout`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json;charset=utf-8'
+    },
+    body: JSON.stringify({
+      token: localStorage.getItem('refreshToken')
+    })
+  }).then((res) => checkResponse<TServerResponse<{}>>(res));

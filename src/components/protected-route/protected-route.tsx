@@ -1,14 +1,15 @@
-import { FC, ReactNode } from 'react';
+import { FC } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { getCookie } from '../../utils/cookie';
+import { useSelector } from '../../services/store';
+import { selectIsAuthenticated } from '../../services/slices/authSlice';
 
 interface ProtectedRouteProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
 export const ProtectedRoute: FC<ProtectedRouteProps> = ({ children }) => {
   const location = useLocation();
-  const isAuthenticated = !!getCookie('accessToken');
+  const isAuthenticated = useSelector(selectIsAuthenticated);
 
   if (!isAuthenticated) {
     return <Navigate to='/login' state={{ from: location }} replace />;
