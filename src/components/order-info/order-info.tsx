@@ -1,31 +1,30 @@
 import { FC, useMemo } from 'react';
-import { Preloader } from '../ui/preloader';
-import { OrderInfoUI } from '../ui/order-info';
-import { TIngredient } from '@utils-types';
-import { useSelector } from '../../services/store';
 import { useParams } from 'react-router-dom';
-import { selectIngredients } from '../../services/slices/ingredientsSlice';
+import { useSelector } from 'react-redux';
+import { Preloader } from '@ui';
+import { OrderInfoUI } from '@ui';
 import { selectOrderByNumber } from '../../services/slices/orderSlice';
+import { selectIngredients } from '../../services/slices/ingredientsSlice';
+import { TOrder, TIngredient } from '@utils-types';
 
 export const OrderInfo: FC = () => {
-  const { number } = useParams<{ number: string }>();
+  const { number } = useParams();
   const order = useSelector(selectOrderByNumber(number || ''));
   const ingredients = useSelector(selectIngredients);
 
-  /* Готовим данные для отображения */
   const orderInfo = useMemo(() => {
-    if (!order || !ingredients.length) return null;
-
-    const date = new Date(order.createdAt);
+    if (!order) return null;
 
     type TIngredientsWithCount = {
       [key: string]: TIngredient & { count: number };
     };
 
     const ingredientsInfo = order.ingredients.reduce(
-      (acc: TIngredientsWithCount, item) => {
+      (acc: TIngredientsWithCount, item: string) => {
         if (!acc[item]) {
-          const ingredient = ingredients.find((ing) => ing._id === item);
+          const ingredient = ingredients.find(
+            (ing: TIngredient) => ing._id === item
+          );
           if (ingredient) {
             acc[item] = {
               ...ingredient,
@@ -35,22 +34,22 @@ export const OrderInfo: FC = () => {
         } else {
           acc[item].count++;
         }
-
         return acc;
       },
       {}
     );
 
     const total = Object.values(ingredientsInfo).reduce(
-      (acc, item) => acc + item.price * item.count,
+      (acc: number, item: TIngredient & { count: number }) =>
+        acc + item.price * item.count,
       0
     );
 
     return {
       ...order,
       ingredientsInfo,
-      date,
-      total
+      total,
+      date: new Date(order.createdAt)
     };
   }, [order, ingredients]);
 

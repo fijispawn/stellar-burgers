@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { TOrder } from '@utils-types';
 import { RootState } from '../store';
 import { orderBurgerApi, getOrderByNumberApi } from '../../utils/burger-api';
+import { clearConstructor } from './constructorSlice';
 
 interface OrderState {
   order: TOrder[];
@@ -25,16 +26,17 @@ const initialState: OrderState = {
 
 export const createOrder = createAsyncThunk(
   'order/createOrder',
-  async (ingredients: string[]) => {
+  async (ingredients: string[], { dispatch }) => {
     const response = await orderBurgerApi(ingredients);
+    dispatch(clearConstructor());
     return response.order;
   }
 );
 
 export const fetchOrder = createAsyncThunk(
   'order/fetchOrder',
-  async (number: string) => {
-    const response = await getOrderByNumberApi(Number(number));
+  async (number: number) => {
+    const response = await getOrderByNumberApi(number);
     return response.orders[0];
   }
 );
@@ -81,18 +83,16 @@ const orderSlice = createSlice({
 
 export const { closeOrderModalData } = orderSlice.actions;
 
-export const selectOrderRequest = (state: RootState): boolean =>
+export const selectOrderRequest = (state: RootState) =>
   state.order.orderRequest;
-export const selectOrderModalData = (state: RootState): TOrder | null =>
+export const selectOrderModalData = (state: RootState) =>
   state.order.orderModalData;
-export const selectOrderModalDataRequest = (state: RootState): boolean =>
+export const selectOrderModalDataRequest = (state: RootState) =>
   state.order.orderModalDataRequest;
-export const selectOrderModalDataFailed = (state: RootState): boolean =>
+export const selectOrderModalDataFailed = (state: RootState) =>
   state.order.orderModalDataFailed;
-export const selectOrderNumber = (state: RootState): number | null =>
-  state.order.number;
-export const selectOrderError = (state: RootState): string | null =>
-  state.order.error;
+export const selectOrderNumber = (state: RootState) => state.order.number;
+export const selectOrderError = (state: RootState) => state.order.error;
 
 export const selectOrderByNumber = (number: string) => (state: RootState) => {
   if (state.order.order?.length) {
