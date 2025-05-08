@@ -246,3 +246,15 @@ export const logoutUserApi = () =>
       token: localStorage.getItem('refreshToken')
     })
   }).then((res) => checkResponse<TServerResponse<{}>>(res));
+
+export const getUserOrdersApi = async () => {
+  const response = await fetchWithRefresh<TOrdersResponse>(`${URL}/orders`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${getCookie('accessToken')}`
+    }
+  });
+  if (response?.success) return response;
+  return Promise.reject(response);
+};

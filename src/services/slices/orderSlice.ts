@@ -1,7 +1,11 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { TOrder } from '@utils-types';
 import { RootState } from '../store';
-import { orderBurgerApi, getOrderByNumberApi } from '../../utils/burger-api';
+import {
+  orderBurgerApi,
+  getOrderByNumberApi,
+  getOrdersApi
+} from '../../utils/burger-api';
 import { clearConstructor } from './constructorSlice';
 
 interface OrderState {
@@ -33,8 +37,13 @@ export const createOrder = createAsyncThunk(
   }
 );
 
-export const fetchOrder = createAsyncThunk(
-  'order/fetchOrder',
+export const fetchOrder = createAsyncThunk('order/fetchOrder', async () => {
+  const response = await getOrdersApi();
+  return response;
+});
+
+export const fetchOrderByNumber = createAsyncThunk(
+  'order/fetchOrderByNumber',
   async (number: number) => {
     const response = await getOrderByNumberApi(number);
     return response.orders[0];
@@ -71,9 +80,22 @@ const orderSlice = createSlice({
       })
       .addCase(fetchOrder.fulfilled, (state, action) => {
         state.orderModalDataRequest = false;
-        state.orderModalData = action.payload;
+        state.order = action.payload;
       })
       .addCase(fetchOrder.rejected, (state, action) => {
+        state.orderModalDataRequest = false;
+        state.orderModalDataFailed = true;
+        state.error = action.error.message || 'Произошла ошибка';
+      })
+      .addCase(fetchOrderByNumber.pending, (state) => {
+        state.orderModalDataRequest = true;
+        state.error = null;
+      })
+      .addCase(fetchOrderByNumber.fulfilled, (state, action) => {
+        state.orderModalDataRequest = false;
+        state.orderModalData = action.payload;
+      })
+      .addCase(fetchOrderByNumber.rejected, (state, action) => {
         state.orderModalDataRequest = false;
         state.orderModalDataFailed = true;
         state.error = action.error.message || 'Произошла ошибка';
