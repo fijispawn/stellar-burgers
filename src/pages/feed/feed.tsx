@@ -8,6 +8,7 @@ import {
   selectLoading,
   selectOrders
 } from '../../services/slices/feedSlice';
+import { fetchIngredients } from '../../services/slices/ingredientsSlice';
 
 export const Feed: FC = () => {
   const orders: TOrder[] = useSelector(selectOrders);
@@ -16,6 +17,7 @@ export const Feed: FC = () => {
 
   useEffect(() => {
     dispatch(feedThunk());
+    dispatch(fetchIngredients());
   }, [dispatch]);
 
   const handleGetFeeds = () => {
