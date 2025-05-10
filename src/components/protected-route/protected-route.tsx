@@ -5,14 +5,23 @@ import { selectIsAuthenticated } from '../../services/slices/authSlice';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
+  onlyUnAuth?: boolean;
 }
 
-export const ProtectedRoute: FC<ProtectedRouteProps> = ({ children }) => {
-  const location = useLocation();
+export const ProtectedRoute: FC<ProtectedRouteProps> = ({
+  children,
+  onlyUnAuth = false
+}) => {
   const isAuthenticated = useSelector(selectIsAuthenticated);
+  const location = useLocation();
 
-  if (!isAuthenticated) {
+  if (onlyUnAuth && isAuthenticated) {
+    return <Navigate to='/profile' replace />;
+  }
+
+  if (!onlyUnAuth && !isAuthenticated) {
     return <Navigate to='/login' state={{ from: location }} replace />;
   }
+
   return <>{children}</>;
 };

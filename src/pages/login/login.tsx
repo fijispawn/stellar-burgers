@@ -6,13 +6,14 @@ import {
   selectAuthError,
   selectAuthLoading
 } from '../../services/slices/authSlice';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export const Login: FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const error = useSelector(selectAuthError);
   const loading = useSelector(selectAuthLoading);
 
@@ -20,7 +21,8 @@ export const Login: FC = () => {
     e.preventDefault();
     const result = await dispatch(login({ email, password }));
     if (login.fulfilled.match(result)) {
-      navigate('/');
+      const from = location.state?.from?.pathname || '/profile';
+      navigate(from, { replace: true });
     }
   };
 

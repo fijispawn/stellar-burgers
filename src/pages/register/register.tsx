@@ -6,7 +6,7 @@ import {
   selectAuthError,
   selectAuthLoading
 } from '../../services/slices/authSlice';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export const Register: FC = () => {
   const [userName, setUserName] = useState('');
@@ -14,6 +14,7 @@ export const Register: FC = () => {
   const [password, setPassword] = useState('');
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const error = useSelector(selectAuthError);
   const loading = useSelector(selectAuthLoading);
 
@@ -23,7 +24,8 @@ export const Register: FC = () => {
       register({ name: userName, email, password })
     );
     if (register.fulfilled.match(result)) {
-      navigate('/');
+      const from = location.state?.from?.pathname || '/profile';
+      navigate(from, { replace: true });
     }
   };
 
