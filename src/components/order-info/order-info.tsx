@@ -1,19 +1,37 @@
-import { FC, useMemo } from 'react';
+import { FC, useMemo, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { Preloader } from '@ui';
 import { OrderInfoUI } from '@ui';
-import { selectOrderByNumber } from '../../services/slices/orderSlice';
-import { selectIngredients } from '../../services/slices/ingredientsSlice';
+import {
+  selectOrderByNumber,
+  fetchOrderByNumber
+} from '../../services/slices/orderSlice';
+import {
+  selectIngredients,
+  fetchIngredients
+} from '../../services/slices/ingredientsSlice';
 import { TOrder, TIngredient } from '@utils-types';
+import { AppDispatch } from '../../services/store';
 
 export const OrderInfo: FC = () => {
   const { number } = useParams();
+  const dispatch = useDispatch<AppDispatch>();
   const order = useSelector(selectOrderByNumber(number || ''));
   const ingredients = useSelector(selectIngredients);
 
+  useEffect(() => {
+    dispatch(fetchIngredients());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (number && !order) {
+      dispatch(fetchOrderByNumber(Number(number)));
+    }
+  }, [number, order, dispatch]);
+
   const orderInfo = useMemo(() => {
-    if (!order) return null;
+    if (!order || !ingredients.length) return null;
 
     type TIngredientsWithCount = {
       [key: string]: TIngredient & { count: number };

@@ -92,7 +92,10 @@ const App = () => {
           <Route
             path='/feed/:number'
             element={
-              <Modal title='Детали заказа' onClose={handleModalClose}>
+              <Modal
+                title={`#${location.pathname.split('/').pop()?.padStart(6, '0')}`}
+                onClose={handleModalClose}
+              >
                 <OrderInfo />
               </Modal>
             }
@@ -108,7 +111,10 @@ const App = () => {
           <Route
             path='/profile/orders/:number'
             element={
-              <Modal title='Детали заказа' onClose={handleModalClose}>
+              <Modal
+                title={`#${location.pathname.split('/').pop()?.padStart(6, '0')}`}
+                onClose={handleModalClose}
+              >
                 <OrderInfo />
               </Modal>
             }
