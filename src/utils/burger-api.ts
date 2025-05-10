@@ -208,7 +208,9 @@ type TUserResponse = TServerResponse<{ user: TUser }>;
 
 export const getUserApi = () =>
   fetchWithRefresh<TUserResponse>(`${URL}/auth/user`, {
+    method: 'GET',
     headers: {
+      'Content-Type': 'application/json;charset=utf-8',
       authorization: getCookie('accessToken')
     } as HeadersInit
   });
@@ -233,3 +235,26 @@ export const logoutApi = () =>
       token: localStorage.getItem('refreshToken')
     })
   }).then((res) => checkResponse<TServerResponse<{}>>(res));
+
+export const logoutUserApi = () =>
+  fetch(`${URL}/auth/logout`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json;charset=utf-8'
+    },
+    body: JSON.stringify({
+      token: localStorage.getItem('refreshToken')
+    })
+  }).then((res) => checkResponse<TServerResponse<{}>>(res));
+
+export const getUserOrdersApi = async () => {
+  const response = await fetchWithRefresh<TOrdersResponse>(`${URL}/orders`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${getCookie('accessToken')}`
+    }
+  });
+  if (response?.success) return response;
+  return Promise.reject(response);
+};
